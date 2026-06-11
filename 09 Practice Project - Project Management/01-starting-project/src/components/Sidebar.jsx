@@ -1,6 +1,10 @@
 import Projects from './Projects';
 
-export default function Sidebar({ projects, handleAddProject }) {
+export default function Sidebar({
+  projects,
+  handleAddProject,
+  onSelectedProject,
+}) {
   return (
     <aside className="w-80 h-screen py-10 px-6 bg-slate-900">
       <h2 className="text-2xl font-semibold text-white uppercase mb-4">
@@ -13,7 +17,7 @@ export default function Sidebar({ projects, handleAddProject }) {
         + Add Project
       </button>
       <div className="mt-8">
-        <Projects projects={projects} />
+        <Projects projects={projects} handleSelectProject={onSelectedProject} />
       </div>
     </aside>
   );

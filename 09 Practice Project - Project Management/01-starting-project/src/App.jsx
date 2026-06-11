@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import noProjectsImage from './assets/no-projects.png';
 import Sidebar from './components/Sidebar';
-import Form from './components/Form';
+import ProjectAdd from './components/ProjectAdd';
+import ProjectEdit from './components/ProjectEdit';
+import ModalProjectAdded from './components/ModalProjectAdded';
 
 function App() {
   // const projects = [
@@ -20,26 +22,47 @@ function App() {
   // ];
 
   const [projectData, setProjectData] = useState([]);
-  const [isFormActive, setIsFormActive] = useState(false);
+  const [mainState, setMainState] = useState('');
+  const [selectedProject, setSelectedProject] = useState({});
+  const dialog = useRef();
 
   function renderAddForm() {
-    setIsFormActive(true);
+    setMainState('ProjectAdd');
   }
 
   function resetForm() {
-    setIsFormActive(false);
+    setMainState('');
   }
 
   function handleAddProject(newProject) {
-    setProjectData(prevProjectData => [...prevProjectData, newProject]);
+    const project = { ...newProject, id: Date.now() };
+    setProjectData((prevProjectData) => [...prevProjectData, project]);
+    setSelectedProject(project);
+    setMainState('ProjectEdit');
+    dialog.current.open();
+  }
+
+  function currentProject(project) {
+    setSelectedProject(project);
+    setMainState('ProjectEdit');
   }
 
   return (
     <div className="flex">
-      <Sidebar projects={projectData} handleAddProject={renderAddForm} />
+      <Sidebar
+        projects={projectData}
+        handleAddProject={renderAddForm}
+        onSelectedProject={currentProject}
+      />
       <main className="flex-1">
-        {isFormActive ? (
-          <Form handleResetForm={resetForm} handleSaveProject={handleAddProject} />
+        <ModalProjectAdded ref={dialog} />
+        {mainState === 'ProjectAdd' ? (
+          <ProjectAdd
+            handleResetForm={resetForm}
+            handleSaveProject={handleAddProject}
+          />
+        ) : mainState === 'ProjectEdit' ? (
+          <ProjectEdit project={selectedProject} />
         ) : (
           <div className="flex flex-col items-center pt-20">
             <img src={noProjectsImage} className="w-16" />

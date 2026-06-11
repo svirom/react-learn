@@ -1,12 +1,19 @@
 import { useRef } from 'react';
 
-export default function Form({ handleResetForm, handleSaveProject }) {
+export default function ProjectAdd({ handleResetForm, handleSaveProject }) {
   const title = useRef();
   const description = useRef();
   const date = useRef();
 
   function handleSubmit(e) {
     e.preventDefault();
+    if (
+      !title.current.value.trim() ||
+      !description.current.value.trim() ||
+      !date.current.value
+    ) {
+      return;
+    }
     handleSaveProject({
       title: title.current.value,
       description: description.current.value,
