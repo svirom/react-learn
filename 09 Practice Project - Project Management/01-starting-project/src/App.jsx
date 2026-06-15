@@ -6,45 +6,72 @@ import ProjectEdit from './components/ProjectEdit';
 import ModalProjectAdded from './components/ModalProjectAdded';
 
 function App() {
-  // const projects = [
-  //   {
-  //     "title": "Project 1",
-  //     "description": "Lorem ipsum lorem ipsum lorem ipsum",
-  //     "due-time": "2026-06-25",
-  //     "tasks": ['learn Javascript', 'learn Reactjs', 'learn Nextjs']
-  //   },
-  //   {
-  //     "title": "Project 2",
-  //     "description": "Lorem ipsum lorem ipsum lorem ipsum lorem ipsum",
-  //     "due-time": "2026-06-28",
-  //     "tasks": ['learn HTML', 'learn CSS', 'learn SCSS']
-  //   },
-  // ];
-
-  const [projectData, setProjectData] = useState([]);
+  const [projectData, setProjectData] = useState(getProjects());
   const [mainState, setMainState] = useState('');
-  const [selectedProject, setSelectedProject] = useState({});
+  const [selectedProject, setSelectedProject] = useState(null);
   const dialog = useRef();
+
+  function getProjects() {
+    return JSON.parse(localStorage.getItem('projects')) || [];
+  }
+
+  function setProjects(projects) {
+    localStorage.setItem('projects', JSON.stringify(projects));
+  }
 
   function renderAddForm() {
     setMainState('ProjectAdd');
+    setSelectedProject(null);
   }
 
   function resetForm() {
     setMainState('');
+    setSelectedProject(null);
   }
 
   function handleAddProject(newProject) {
     const project = { ...newProject, id: Date.now() };
-    setProjectData((prevProjectData) => [...prevProjectData, project]);
+    const updated = [...projectData, project];
+    setProjectData(updated);
+    setProjects(updated);
     setSelectedProject(project);
     setMainState('ProjectEdit');
     dialog.current.open();
   }
 
+  function handleDeleteProject(project) {
+    const updated = projectData.filter((el) => el.id !== project.id);
+    setProjectData(updated);
+    setProjects(updated);
+    setMainState('');
+    setSelectedProject(null);
+  }
+
   function currentProject(project) {
     setSelectedProject(project);
     setMainState('ProjectEdit');
+  }
+
+  function addTask(taskValue) {
+    const updated = {
+      ...selectedProject,
+      tasks: [...(selectedProject.tasks || []), taskValue],
+    };
+    const updatedData = projectData.map((el) => (el.id === updated.id ? updated : el));
+    setSelectedProject(updated);
+    setProjectData(updatedData);
+    setProjects(updatedData);
+  }
+
+  function removeTask(task) {
+    const updated = {
+      ...selectedProject,
+      tasks: (selectedProject.tasks || []).filter((el) => el !== task),
+    };
+    const updatedData = projectData.map((el) => (el.id === updated.id ? updated : el));
+    setSelectedProject(updated);
+    setProjectData(updatedData);
+    setProjects(updatedData);
   }
 
   return (
@@ -53,6 +80,7 @@ function App() {
         projects={projectData}
         handleAddProject={renderAddForm}
         onSelectedProject={currentProject}
+        selectedProjectId={selectedProject?.id}
       />
       <main className="flex-1">
         <ModalProjectAdded ref={dialog} />
@@ -62,7 +90,12 @@ function App() {
             handleSaveProject={handleAddProject}
           />
         ) : mainState === 'ProjectEdit' ? (
-          <ProjectEdit project={selectedProject} />
+          <ProjectEdit
+            project={selectedProject}
+            deleteProject={handleDeleteProject}
+            addTask={addTask}
+            removeTask={removeTask}
+          />
         ) : (
           <div className="flex flex-col items-center pt-20">
             <img src={noProjectsImage} className="w-16" />

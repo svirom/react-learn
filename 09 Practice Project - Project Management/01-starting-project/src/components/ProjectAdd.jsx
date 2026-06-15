@@ -18,6 +18,7 @@ export default function ProjectAdd({ handleResetForm, handleSaveProject }) {
       title: title.current.value,
       description: description.current.value,
       date: date.current.value,
+      tasks: []
     });
     title.current.value = '';
     description.current.value = '';

@@ -4,6 +4,7 @@ export default function Sidebar({
   projects,
   handleAddProject,
   onSelectedProject,
+  selectedProjectId,
 }) {
   return (
     <aside className="w-80 h-screen py-10 px-6 bg-slate-900">
@@ -17,7 +18,11 @@ export default function Sidebar({
         + Add Project
       </button>
       <div className="mt-8">
-        <Projects projects={projects} handleSelectProject={onSelectedProject} />
+        <Projects
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          handleSelectProject={onSelectedProject}
+        />
       </div>
     </aside>
   );
