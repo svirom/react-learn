@@ -5,15 +5,15 @@ import ProjectAdd from './components/ProjectAdd';
 import ProjectEdit from './components/ProjectEdit';
 import ModalProjectAdded from './components/ModalProjectAdded';
 
+function getProjects() {
+  return JSON.parse(localStorage.getItem('projects')) || [];
+}
+
 function App() {
-  const [projectData, setProjectData] = useState(getProjects());
+  const [projectData, setProjectData] = useState(getProjects);
   const [mainState, setMainState] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
   const dialog = useRef();
-
-  function getProjects() {
-    return JSON.parse(localStorage.getItem('projects')) || [];
-  }
 
   function setProjects(projects) {
     localStorage.setItem('projects', JSON.stringify(projects));
@@ -57,7 +57,9 @@ function App() {
       ...selectedProject,
       tasks: [...(selectedProject.tasks || []), taskValue],
     };
-    const updatedData = projectData.map((el) => (el.id === updated.id ? updated : el));
+    const updatedData = projectData.map((el) =>
+      el.id === updated.id ? updated : el,
+    );
     setSelectedProject(updated);
     setProjectData(updatedData);
     setProjects(updatedData);
@@ -68,7 +70,9 @@ function App() {
       ...selectedProject,
       tasks: (selectedProject.tasks || []).filter((el) => el !== task),
     };
-    const updatedData = projectData.map((el) => (el.id === updated.id ? updated : el));
+    const updatedData = projectData.map((el) =>
+      el.id === updated.id ? updated : el,
+    );
     setSelectedProject(updated);
     setProjectData(updatedData);
     setProjects(updatedData);
