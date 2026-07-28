@@ -9,46 +9,58 @@ function App() {
   const [answers, updateAnswers] = useState([]);
   const [currentAnsweredStatus, setCurrentAnsweredStatus] = useState(false);
   const [nextQuestion, setNextQuestion] = useState(false);
+  const [isAnswerCorrect, setIsAnswerCorrect] = useState(null);
 
   const answeredStatus = useCallback(function answeredStatus(status) {
     setCurrentAnsweredStatus(status);
   }, []);
 
-  const handleCurrentAnswer = useCallback(function handleCurrentAnswer(answer) {
-    updateAnswers((prevAnswers) => [...prevAnswers, answer]);
-    answeredStatus(true);
-  }, [answeredStatus]);
+  const handleCurrentAnswer = useCallback(
+    function handleCurrentAnswer(answer) {
+      updateAnswers((prevAnswers) => [...prevAnswers, answer]);
+      answeredStatus(true);
+    },
+    [answeredStatus],
+  );
 
   const handleNextQuestion = useCallback(() => {
     setNextQuestion(true);
   }, []);
 
   useEffect(() => {
+    let timer;
     if (nextQuestion) {
-      setCurrentQuestionIndex(
-        (prevIndex) => prevIndex < QUESTIONS.length - 1 ? prevIndex + 1 : -1,
-      );
-      answeredStatus(false);
-      setNextQuestion(false);
+      setIsAnswerCorrect(answers.at(-1));
+      timer = setTimeout(() => {
+        setCurrentQuestionIndex((prevIndex) =>
+          prevIndex < QUESTIONS.length - 1 ? prevIndex + 1 : -1,
+        );
+
+        answeredStatus(false);
+        setNextQuestion(false);
+        setIsAnswerCorrect(null);
+      }, 5000);
     }
+    return () => clearTimeout(timer);
   }, [nextQuestion, answeredStatus]);
 
   return (
     <main className="main">
-      {console.log(answers)}
       <Header />
       <div className="quiz">
         {currentQuestionIndex >= 0 && (
           <>
             <ProgressBar
-              key={currentQuestionIndex}
+              key={`progress-${currentQuestionIndex}`}
               isAnswered={currentAnsweredStatus}
               onTimeExpired={handleCurrentAnswer}
               goNextQuestion={handleNextQuestion}
             />
             <QuestionsCard
+              key={`card-${currentQuestionIndex}`}
               questionIndex={currentQuestionIndex}
               answer={handleCurrentAnswer}
+              answerFinished={isAnswerCorrect}
             />
           </>
         )}

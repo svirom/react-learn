@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styles from '../styles/QuestionsCard.module.scss';
 import QUESTIONS from '../questions.js';
 import ANSWERS_INDEXES from '../answer_indexes';
 
-export default function QuestionsCard({ questionIndex, answer }) {
+export default function QuestionsCard({ questionIndex, answer, answerFinished }) {
   const answers = QUESTIONS[questionIndex]['answers'];
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
 
@@ -11,9 +11,6 @@ export default function QuestionsCard({ questionIndex, answer }) {
     index === ANSWERS_INDEXES[questionIndex] ? answer(true) : answer(false);
     setSelectedAnswerIndex(index);
   }
-  useEffect(() => {
-    setSelectedAnswerIndex(null);
-  }, [questionIndex]);
 
   return (
     <div className={styles['questions-card']}>
@@ -21,6 +18,11 @@ export default function QuestionsCard({ questionIndex, answer }) {
 
       <ul className={styles.answers}>
         {answers.map((answer, index) => {
+          const isSelected = selectedAnswerIndex === index;
+          const isDisabled =
+            (selectedAnswerIndex !== null && !isSelected) ||
+            (selectedAnswerIndex === null && answerFinished === 'skipped');
+
           return (
             <li
               key={`${QUESTIONS[questionIndex]['id']}-${index}`}
@@ -29,10 +31,10 @@ export default function QuestionsCard({ questionIndex, answer }) {
               <button
                 className={[
                   styles.answer,
-                  selectedAnswerIndex === index && styles.selected,
-                  selectedAnswerIndex !== null &&
-                    selectedAnswerIndex !== index &&
-                    styles.disabled,
+                  isSelected && styles.selected,
+                  isSelected && answerFinished === true && styles.correct,
+                  isSelected && answerFinished === false && styles.wrong,
+                  isDisabled && styles.disabled,
                 ]
                   .filter(Boolean)
                   .join(' ')}
