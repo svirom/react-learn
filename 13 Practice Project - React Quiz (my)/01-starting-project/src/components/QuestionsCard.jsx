@@ -15,7 +15,7 @@ export default function QuestionsCard({
   function handleQuestionSubmit(index) {
     index === ANSWERS_INDEXES[questionIndex] ? answer(true) : answer(false);
     setSelectedAnswerIndex(index);
-    questionResult(QUESTIONS[questionIndex]['text'], QUESTIONS[questionIndex]['answers'][ANSWERS_INDEXES[questionIndex]])
+    questionResult(QUESTIONS[questionIndex]['text'], QUESTIONS[questionIndex]['answers'][index])
   }
 
   return (
