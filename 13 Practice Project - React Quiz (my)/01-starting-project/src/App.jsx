@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Header from './components/Header';
 import ProgressBar from './components/ProgressBar';
 import QuestionsCard from './components/QuestionsCard';
+import Summary from './components/Summary.jsx';
 import QUESTIONS from './questions.js';
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
   const [currentAnsweredStatus, setCurrentAnsweredStatus] = useState(false);
   const [nextQuestion, setNextQuestion] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(null);
+  const [result, setResult] = useState([]);
 
   const answeredStatus = useCallback(function answeredStatus(status) {
     setCurrentAnsweredStatus(status);
@@ -19,9 +21,19 @@ function App() {
     function handleCurrentAnswer(answer) {
       updateAnswers((prevAnswers) => [...prevAnswers, answer]);
       answeredStatus(true);
+      if (answer === 'skipped') {
+        setResult((prevResult) => [
+          ...prevResult,
+          [QUESTIONS[currentQuestionIndex]['text'], 'skipped'],
+        ]);
+      }
     },
-    [answeredStatus],
+    [answeredStatus, currentQuestionIndex],
   );
+
+  function questionResult(question, answer) {
+    setResult((prevResult) => [...prevResult, [question, answer]]);
+  }
 
   const handleNextQuestion = useCallback(() => {
     setNextQuestion(true);
@@ -39,7 +51,7 @@ function App() {
         answeredStatus(false);
         setNextQuestion(false);
         setIsAnswerCorrect(null);
-      }, 5000);
+      }, 3000);
     }
     return () => clearTimeout(timer);
   }, [nextQuestion, answeredStatus]);
@@ -47,24 +59,25 @@ function App() {
   return (
     <main className="main">
       <Header />
-      <div className="quiz">
-        {currentQuestionIndex >= 0 && (
-          <>
-            <ProgressBar
-              key={`progress-${currentQuestionIndex}`}
-              isAnswered={currentAnsweredStatus}
-              onTimeExpired={handleCurrentAnswer}
-              goNextQuestion={handleNextQuestion}
-            />
-            <QuestionsCard
-              key={`card-${currentQuestionIndex}`}
-              questionIndex={currentQuestionIndex}
-              answer={handleCurrentAnswer}
-              answerFinished={isAnswerCorrect}
-            />
-          </>
-        )}
-      </div>
+      {currentQuestionIndex >= 0 ? (
+        <div className="quiz">
+          <ProgressBar
+            key={`progress-${currentQuestionIndex}`}
+            isAnswered={currentAnsweredStatus}
+            onTimeExpired={handleCurrentAnswer}
+            goNextQuestion={handleNextQuestion}
+          />
+          <QuestionsCard
+            key={`card-${currentQuestionIndex}`}
+            questionIndex={currentQuestionIndex}
+            answer={handleCurrentAnswer}
+            answerFinished={isAnswerCorrect}
+            questionResult={questionResult}
+          />
+        </div>
+      ) : (
+        <Summary result={result} answerStatus={answers} />
+      )}
     </main>
   );
 }
