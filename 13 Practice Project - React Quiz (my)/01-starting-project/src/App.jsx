@@ -21,6 +21,7 @@ function App() {
     function handleCurrentAnswer(answer) {
       updateAnswers((prevAnswers) => [...prevAnswers, answer]);
       answeredStatus(true);
+      setIsAnswerCorrect(answer);
       if (answer === 'skipped') {
         setResult((prevResult) => [
           ...prevResult,
@@ -42,7 +43,6 @@ function App() {
   useEffect(() => {
     let timer;
     if (nextQuestion) {
-      setIsAnswerCorrect(answers.at(-1));
       timer = setTimeout(() => {
         setCurrentQuestionIndex((prevIndex) =>
           prevIndex < QUESTIONS.length - 1 ? prevIndex + 1 : -1,
@@ -71,7 +71,7 @@ function App() {
             key={`card-${currentQuestionIndex}`}
             questionIndex={currentQuestionIndex}
             answer={handleCurrentAnswer}
-            answerFinished={isAnswerCorrect}
+            lastAnswerCorrect={isAnswerCorrect}
             questionResult={questionResult}
           />
         </div>

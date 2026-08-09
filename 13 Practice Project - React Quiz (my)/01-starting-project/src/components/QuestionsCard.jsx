@@ -6,7 +6,7 @@ import ANSWERS_INDEXES from '../answer_indexes';
 export default function QuestionsCard({
   questionIndex,
   answer,
-  answerFinished,
+  lastAnswerCorrect,
   questionResult
 }) {
   const answers = QUESTIONS[questionIndex]['answers'];
@@ -27,7 +27,7 @@ export default function QuestionsCard({
           const isSelected = selectedAnswerIndex === index;
           const isDisabled =
             (selectedAnswerIndex !== null && !isSelected) ||
-            (selectedAnswerIndex === null && answerFinished === 'skipped');
+            (selectedAnswerIndex === null && lastAnswerCorrect === 'skipped');
 
           return (
             <li
@@ -38,8 +38,8 @@ export default function QuestionsCard({
                 className={[
                   styles.answer,
                   isSelected && styles.selected,
-                  isSelected && answerFinished === true && styles.correct,
-                  isSelected && answerFinished === false && styles.wrong,
+                  isSelected && lastAnswerCorrect === true && styles.correct,
+                  isSelected && lastAnswerCorrect === false && styles.wrong,
                   isDisabled && styles.disabled,
                 ]
                   .filter(Boolean)
